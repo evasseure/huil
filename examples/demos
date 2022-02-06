@@ -1,0 +1,32 @@
+let a: int = 1
+let b: float = 1.5
+let c: str = "hello"
+let d: dict = {
+    a: 121212
+    bobo: "toto"
+}
+
+type Vehicule = {
+    speed: float
+    color: str
+    name: str | null
+}
+
+let v: Vehicule = Vehicule(speed=1, color="red")
+
+def add(a int, b int) -> int:
+    return a + b
+
+---------------
+// Add
+def add(a int, b int) -> int:
+    a + b
+
+add(4, 5)
+---------------
+// Printing
+def say_hello():
+    print "hello"
+
+say_hello()
+---------------
