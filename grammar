@@ -5,15 +5,17 @@ assignment      : LET variable ASSIGN expr
 factor          : (PLUS | MINUS factor)
                     | INTEGER 
                     | LPAREN expr RPAREN
+                    | variable LPAREN (factor COMMA)* (variable)? RPAREN
                     | variable
 
 term            : factor ((MUL | DIV | MOD) factor)*
 
 expr            : term ((PLUS | MINUS) term)*
 
-statement       : (assignment | expr)
+function        : DEF variable LPAREN (variable COMMA)* (variable)? RPAREN COLON EOL statement_list
 
-statement_list  : (statement EOL)* EOF
+statement       : (assignment | function | expr)
 
-program         : statement_list
+statement_list  : (statement EOL)*
 
+program         : statement_list EOF

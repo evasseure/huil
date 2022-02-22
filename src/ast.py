@@ -30,6 +30,19 @@ class VariableNode(ASTNode):
 
 
 @dataclass
+class FunctionNode(ASTNode):
+    id: str
+    arguments: List[str]
+    statements: "StatementListNode"
+
+
+@dataclass
+class FunctionCallNode(ASTNode):
+    id: str
+    arguments: List[Any]
+
+
+@dataclass
 class AssignmentNode(ASTNode):
     id: str
     value: Any

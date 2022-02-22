@@ -10,7 +10,7 @@ class Parser(object):
         self.current_token = self.lexer.get_next_token()
 
     def error(self, token_type):
-        raise Exception("Invalid syntax:", token_type)
+        raise Exception("Invalid syntax:", token_type, self.lexer.column, self.lexer.line)
 
     def eat(self, token_type):
         # compare the current token type with the passed token
@@ -40,8 +40,21 @@ class Parser(object):
             self.eat(RPAREN)
             return node
         elif token.type == ID:
+            id_token = self.current_token
             self.eat(ID)
-            return VariableNode(token, id=token.value)
+            if self.current_token.type == LPAREN:
+                self.eat(LPAREN)
+                args = []
+                while True:
+                    args.append(self.factor())
+                    if self.current_token.type == RPAREN:
+                        self.eat(RPAREN)
+                        break
+                    else:
+                        self.eat(COMMA)
+                return FunctionCallNode(id_token, id_token.value, args)
+
+            return VariableNode(id_token, id=id_token.value)
 
     def term(self):
         """term : factor ((MUL | DIV | MOD) factor)*"""
@@ -86,9 +99,40 @@ class Parser(object):
 
         return node
 
+    def function(self):
+        # DEF variable LPAREN (variable COMMA)* (variable)? RPAREN COLON EOL (statement)*
+
+        fn_token = self.current_token
+        self.eat(DEF)
+        id_token = self.current_token
+        self.eat(ID)
+        self.eat(LPAREN)
+        args = []
+        while self.current_token.type == ID:
+            args.append(self.current_token.value)
+            self.eat(ID)
+            if self.current_token.type == RPAREN:
+                self.eat(RPAREN)
+                break
+            else:
+                self.eat(COMMA)
+        self.eat(COLON)
+        self.eat(EOL)
+
+        statements = []
+        function_columns = self.current_token.column
+        while self.current_token.column == function_columns:
+            statements.append(self.statement())
+            self.eat(EOL)
+
+        node = FunctionNode(fn_token, id=id_token.value, arguments=args, statements=StatementListNode(None, statements))
+        return node
+
     def statement(self):
         if self.current_token.type == LET:
             return self.assignment()
+        if self.current_token.type == DEF:
+            return self.function()
         else:
             return self.expr()
 
@@ -99,10 +143,13 @@ class Parser(object):
                 self.eat(EOL)
                 continue
             nodes.append(self.statement())
+            print(nodes)
         return StatementListNode(None, nodes)
 
     def program(self):
-        return self.statement_list()
+        node = self.statement_list()
+        self.eat(EOF)
+        return node
 
     def parse(self):
         return self.program()

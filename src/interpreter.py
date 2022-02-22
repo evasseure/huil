@@ -1,3 +1,4 @@
+from src.ast import FunctionNode
 from src.token import *
 
 
@@ -37,6 +38,23 @@ class Interpreter(NodeVisitor):
     def visit_NumNode(self, node):
         return node.value
 
+    def visit_FunctionCallNode(self, node):
+        function = self.global_scope.get(node.id)
+        if function == None:
+            raise NameError("Undeclared function: " + node.id)
+
+        # We save the previous state before we start adding scoped variables
+        previous_state = self.global_scope
+
+        for i in range(len(function.arguments)):
+            self.global_scope[function.arguments[i]] = self.visit(node.arguments[i])
+
+        returned = self.visit(
+            self.global_scope[node.id].statements,
+        )
+        self.global_scope = previous_state
+        return returned
+
     def visit_AssignmentNode(self, node):
         self.global_scope[node.id.value] = self.visit(node.value)
 
@@ -44,6 +62,9 @@ class Interpreter(NodeVisitor):
         if self.global_scope.get(node.id) == None:
             raise NameError("Undeclared variable: " + node.id)
         return self.global_scope[node.id]
+
+    def visit_FunctionNode(self, node):
+        self.global_scope[node.id] = node
 
     def visit_StatementListNode(self, node):
         last_value = None

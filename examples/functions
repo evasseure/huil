@@ -1,0 +1,10 @@
+def add(a, b):
+    a + b
+
+def mult(c, d):
+    let res = c * d
+    res
+
+let var1 = 2
+let var2 = 4
+add(var1, mult(var2, 2))
