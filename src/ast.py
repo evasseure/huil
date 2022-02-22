@@ -58,6 +58,13 @@ class FunctionNode(ASTNode):
 
 
 @dataclass
+class IfThenElseNode(ASTNode):
+    conditions: List[ASTNode]
+    truthy_statements: List["StatementListNode"]
+    else_statements: "StatementListNode"
+
+
+@dataclass
 class FunctionCallNode(ASTNode):
     id: str
     arguments: List[Any]

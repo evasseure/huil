@@ -1,6 +1,7 @@
 from src.ast import FunctionNode, NumNode, StringNode
 from src.token import *
 from rich import print
+import readline  # Necessary to have a nice python input()
 
 
 class NodeVisitor:
@@ -106,6 +107,15 @@ class Interpreter(NodeVisitor):
         )
         self.global_scope = previous_state
         return returned
+
+    def visit_IfThenElseNode(self, node):
+        for i in range(len(node.conditions)):
+            res = self.visit(node.conditions[i])
+            if res:
+                return self.visit(node.truthy_statements[i])
+
+        if node.else_statements:
+            return self.visit(node.else_statements)
 
     def visit_DeclarationNode(self, node):
         if self.global_scope.get(node.id) is not None:

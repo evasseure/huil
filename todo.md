@@ -1,9 +1,10 @@
 # Todo
 
-[ ] boolean
-[ ] if/then/else
+[ ] Separation between symbols and values
+[ ] Show full text line of error
 [ ] for loop / map ?
 [ ] while ?
+[ ] Helper function to build block statement lists (too much duplicated code)
 [ ] to_int()
 [ ] to_float()
 [ ] to_string()
@@ -12,6 +13,8 @@
 [ ] FAIL-scope
 [ ] Simple stack trace
 [ ] Multi line REPL (rich repl?)
+[X] boolean
+[X] if/then/else
 [X] empty var declaration
 [X] Basic REPL
 [X] Partern matching all (\*)

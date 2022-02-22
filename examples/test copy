@@ -1,5 +1,0 @@
-let a = input(">")
-if a < 5:
-    print("Less than 5")
-elif a >= 5 and :
-

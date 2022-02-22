@@ -9,4 +9,7 @@ RESERVED_KEYWORDS = {
     "false": Token("BOOLEAN", False, 0, 0),
     "and": Token("AND", "AND", 0, 0),
     "or": Token("OR", "OR", 0, 0),
+    "if": Token("IF", "IF", 0, 0),
+    "elif": Token("ELIF", "ELIF", 0, 0),
+    "else": Token("ELSE", "ELSE", 0, 0),
 }

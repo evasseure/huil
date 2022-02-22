@@ -92,6 +92,8 @@ class Parser(object):
             else:
                 return VariableNode(id_token, id=id_token.value)
 
+        self.error(token.type)
+
     def term(self):
         node = self.factor()
 
@@ -174,11 +176,55 @@ class Parser(object):
         node = FunctionNode(fn_token, id=id_token.value, arguments=args, statements=StatementListNode(None, statements))
         return node
 
+    def if_control_flow(self):
+        if_token = self.current_token
+        self.eat(IF)
+        conditions = [self.expr()]
+        self.eat(COLON)
+        self.eat(EOL)
+        if_statements = []
+        statements_columns = self.current_token.column
+        while self.current_token.column == statements_columns:
+            if_statements.append(self.statement())
+            self.eat(EOL)
+        truthy_statements = [if_statements]
+
+        while self.current_token.type == ELIF:
+            self.eat(ELIF)
+            conditions.append(self.expr())
+            self.eat(COLON)
+            self.eat(EOL)
+            elif_statements = []
+            statements_columns = self.current_token.column
+            while self.current_token.column == statements_columns:
+                elif_statements.append(self.statement())
+                self.eat(EOL)
+            truthy_statements.append(elif_statements)
+
+        else_statements = []
+        if self.current_token.type == ELSE:
+            self.eat(ELSE)
+            self.eat(COLON)
+            self.eat(EOL)
+            statements_columns = self.current_token.column
+            while self.current_token.column == statements_columns:
+                else_statements.append(self.statement())
+                self.eat(EOL)
+
+        return IfThenElseNode(
+            if_token,
+            conditions,
+            [StatementListNode(None, statm) for statm in truthy_statements],
+            StatementListNode(None, else_statements),
+        )
+
     def statement(self):
         if self.current_token.type == LET:
             return self.declaration()
         if self.current_token.type == DEF:
             return self.function()
+        if self.current_token.type == IF:
+            return self.if_control_flow()
         else:
             return self.expr()
 

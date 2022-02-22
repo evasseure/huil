@@ -1,6 +1,4 @@
-// fails because we use the value of a which is input(), 
-// so at every condition check we ask for the input again
-let a = input()
+let a = -1
 
 if a > 2:
     print("< 2")

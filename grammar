@@ -4,7 +4,7 @@ match           : MATCH factor COLON EOL (PIPE (factor | MUL) ARROW expr EOL)?
 
 assignment      : variable ASSIGN expr
 
-if-then-else    : IF condition COLON EOL (expr EOL)* (ELIF (expr EOL)*)* (ELSE (expr EOL)*)?
+if_control_flow : IF expr COLON EOL (expr EOL)* (ELIF (expr EOL)*)* (ELSE (expr EOL)*)?
 
 factor          : (PLUS | MINUS factor)
                     | INTEGER
@@ -25,7 +25,7 @@ function        : DEF variable LPAREN (variable (COMMA | variable)*)? RPAREN COL
 
 declaration     : LET variable (ASSIGN expr)
 
-statement       : (declaration | assignment | function | expr)
+statement       : (declaration | assignment | function | if_control_flow | expr)
 
 statement_list  : (statement EOL)*
 
