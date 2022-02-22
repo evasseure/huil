@@ -6,9 +6,7 @@ from src.token import *
 
 class Lexer(object):
     def __init__(self, text):
-        # client string input, e.g. "4 + 2 * 3 - 6 / 2"
         self.text = text
-        # self.pos is an index into self.text
         self.pos = 0
         self.line = 0
         self.column = 0

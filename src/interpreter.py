@@ -1,4 +1,4 @@
-from src.ast import FunctionNode
+from src.ast import FunctionCallNode, FunctionNode
 from src.token import *
 
 
@@ -15,7 +15,7 @@ class NodeVisitor:
 class Interpreter(NodeVisitor):
     def __init__(self, parser):
         self.parser = parser
-        self.global_scope = {}
+        self.global_scope = {"print": FunctionNode(None, "print", ["text"], [])}
 
     def visit_BinaryOpNode(self, node):
         if node.token.type == PLUS:
@@ -42,6 +42,10 @@ class Interpreter(NodeVisitor):
         function = self.global_scope.get(node.id)
         if function == None:
             raise NameError("Undeclared function: " + node.id)
+
+        if function.id == "print":
+            print(self.visit(node.arguments[0]))
+            return
 
         # We save the previous state before we start adding scoped variables
         previous_state = self.global_scope
