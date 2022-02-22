@@ -1,6 +1,4 @@
-// fails because we use the value of a which is input(), 
-// so at every condition check we ask for the input again
-let a = input()
+let a = input("> ")
 
 if a > 2:
     print("< 2")
@@ -10,4 +8,3 @@ elif a >= 2 and a < 7:
     print(">= 2 and < 7")
 else:
     print("other")
-

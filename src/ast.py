@@ -26,7 +26,8 @@ class UnaryOpNode(ASTNode):
 
 @dataclass
 class NumNode(ASTNode):
-    value: int or float
+    # value: int or float
+    ...
 
 
 @dataclass

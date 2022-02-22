@@ -59,7 +59,10 @@ class Interpreter(NodeVisitor):
         return None
 
     def visit_NumNode(self, node):
-        return node.value
+        if node.token.type == INTEGER:
+            return int(node.token.value)
+        if node.token.type == FLOAT:
+            return float(node.token.value)
 
     def visit_BooleanNode(self, node):
         return node.value
@@ -88,12 +91,15 @@ class Interpreter(NodeVisitor):
 
         if function.id == "input":
             # TODO It's probably the users responsability to transform it to int ou float
-            text = input(self.visit(node.arguments[0]))
+            if len(node.arguments) > 0:
+                text = input(self.visit(node.arguments[0]))
+            else:
+                text = input()
             # https://nbviewer.org/github/rasbt/One-Python-benchmark-per-day/blob/master/ipython_nbs/day6_string_is_number.ipynb?create=1
             if text.isdigit():
-                return self.visit(NumNode(None, int(text)))
+                return self.visit(NumNode(Token(INTEGER, text, 0, 0)))
             if text.replace(".", "", 1).isdigit():
-                return self.visit(NumNode(None, float(text)))
+                return self.visit(NumNode(Token(FLOAT, text, 0, 0)))
             return self.visit(StringNode(None, text))
 
         # We save the previous state before we start adding scoped variables
@@ -120,12 +126,12 @@ class Interpreter(NodeVisitor):
     def visit_DeclarationNode(self, node):
         if self.global_scope.get(node.id) is not None:
             raise NameError(f"Variable already declared: {node.id} at (l{node.token.line}:c{node.token.column})")
-        self.global_scope[node.id] = node.value
+        self.global_scope[node.id] = self.visit(node.value)
 
     def visit_AssignmentNode(self, node):
         if self.global_scope.get(node.id) is None:
             raise NameError(f"Undeclared variable: {node.id} at (l{node.token.line}:c{node.token.column})")
-        self.global_scope[node.id] = node.value
+        self.global_scope[node.id] = self.visit(node.value)
 
     def visit_VariableNode(self, node):
         if self.global_scope.get(node.id) is None:
@@ -138,7 +144,6 @@ class Interpreter(NodeVisitor):
     def visit_StatementListNode(self, node):
         last_value = None
         for statement in node.statements:
-            # print(self.global_scope)
             last_value = self.visit(statement)
         return last_value
 

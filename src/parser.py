@@ -55,10 +55,10 @@ class Parser(object):
             return UnaryOpNode(token, self.factor())
         elif token.type == INTEGER:
             self.eat(INTEGER)
-            return NumNode(token, int(token.value))
+            return NumNode(token)
         elif token.type == FLOAT:
             self.eat(FLOAT)
-            return NumNode(token, float(token.value))
+            return NumNode(token)
         elif token.type == BOOLEAN:
             self.eat(BOOLEAN)
             return BooleanNode(token, token.value)
@@ -78,13 +78,16 @@ class Parser(object):
             if self.current_token.type == LPAREN:
                 self.eat(LPAREN)
                 args = []
-                while True:
-                    args.append(self.expr())
-                    if self.current_token.type == RPAREN:
-                        self.eat(RPAREN)
-                        break
-                    else:
-                        self.eat(COMMA)
+                if self.current_token.type != RPAREN:
+                    while True:
+                        args.append(self.expr())
+                        if self.current_token.type == RPAREN:
+                            self.eat(RPAREN)
+                            break
+                        else:
+                            self.eat(COMMA)
+                else:
+                    self.eat(RPAREN)
                 return FunctionCallNode(id_token, id_token.value, args)
             elif self.current_token.type == ASSIGN:
                 self.eat(ASSIGN)

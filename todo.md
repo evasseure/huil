@@ -1,5 +1,6 @@
 # Todo
 
+[ ] 1_050_083: underscore for numbers ?
 [ ] Separation between symbols and values
 [ ] Show full text line of error
 [ ] for loop / map ?
