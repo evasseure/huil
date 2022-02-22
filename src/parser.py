@@ -88,7 +88,7 @@ class Parser(object):
                 return FunctionCallNode(id_token, id_token.value, args)
             elif self.current_token.type == ASSIGN:
                 self.eat(ASSIGN)
-                node = AssignmentNode(token=id_token, id=id_token.value, value=self.expr())
+                return AssignmentNode(token=id_token, id=id_token.value, value=self.expr())
             else:
                 return VariableNode(id_token, id=id_token.value)
 
