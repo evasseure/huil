@@ -48,9 +48,10 @@ class Interpreter(NodeVisitor):
         value = self.visit(node.factor)
 
         for match in node.matches:
+            if match[0].value == "*":
+                return self.visit(match[1])
             if self.visit(match[0]) == value:
                 return self.visit(match[1])
-
         return None
 
     def visit_FunctionCallNode(self, node):

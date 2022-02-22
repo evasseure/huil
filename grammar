@@ -1,6 +1,6 @@
 variable        : ID
 
-match           : MATCH factor COLON EOL (PIPE factor ARROW expr EOL)?
+match           : MATCH factor COLON EOL (PIPE (factor | MUL) ARROW expr EOL)?
 
 factor          : (PLUS | MINUS factor)
                     | INTEGER

@@ -12,5 +12,6 @@ let letter = match num:
     | 7 -> "seven"
     | 8 -> "height"
     | 9 -> "nine"
+    | * -> "I don't know sorry"
 
-print(letter)
+letter

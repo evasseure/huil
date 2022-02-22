@@ -34,7 +34,11 @@ class Parser(object):
         match_columns = self.current_token.column
         while self.current_token.column == match_columns:
             self.eat(PIPE)
-            match = self.factor()
+            if self.current_token.type == MUL:
+                match = StringNode(self.current_token, "*")
+                self.eat(MUL)
+            else:
+                match = self.factor()
             self.eat(ARROW)
             expr = self.expr()
             self.eat(EOL)
