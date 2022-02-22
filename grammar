@@ -3,6 +3,7 @@ variable        : ID
 assignment      : LET variable ASSIGN expr
 
 factor          : (PLUS | MINUS factor)
+                    | 
                     | INTEGER
                     | QUOTE STRING QUOTE
                     | LPAREN expr RPAREN

@@ -9,13 +9,7 @@ class Token:
         self.column = column
 
     def __str__(self):
-        """String representation of the class instance.
-
-        Examples:
-            Token(INTEGER, 3)
-            Token(PLUS, '+')
-            Token(MUL, '*')
-        """
+        """String representation of the class instance."""
         return "Token({type}, {value})".format(type=self.type, value=repr(self.value))
 
     def __repr__(self):

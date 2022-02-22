@@ -23,7 +23,6 @@ class Parser(object):
             self.error(self.current_token.type)
 
     def factor(self):
-        """factor : (PLUS | MINUS factor) | INTEGER | LPAREN expr RPAREN"""
         token: Token = self.current_token
         if token.type == PLUS:
             self.eat(PLUS)
@@ -34,6 +33,9 @@ class Parser(object):
         elif token.type == INTEGER:
             self.eat(INTEGER)
             return NumNode(token, int(token.value))
+        elif token.type == FLOAT:
+            self.eat(FLOAT)
+            return NumNode(token, float(token.value))
         elif token.type == STRING:
             self.eat(STRING)
             return StringNode(token, token.value)

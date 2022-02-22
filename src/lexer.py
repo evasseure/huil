@@ -39,14 +39,17 @@ class Lexer(object):
             self.advance()
         self.advance()
 
-    def integer(self):
-        """Return a (multidigit) integer consumed from the input."""
+    def number(self):
+        """Return a (multidigit) integer of float consumed from the input."""
         result = ""
-        while self.current_char is not None and self.current_char.isdigit():
+        while self.current_char is not None and (self.current_char.isdigit() or self.current_char == "."):
             result += self.current_char
             self.advance()
 
-        return int(result)
+        if "." in result:
+            return Token(FLOAT, result, self.line, self.column)
+        else:
+            return Token(INTEGER, result, self.line, self.column)
 
     def string(self):
         self.advance()
@@ -94,7 +97,7 @@ class Lexer(object):
                 continue
 
             if self.current_char.isdigit():
-                return Token(INTEGER, self.integer(), self.line, self.column)
+                return self.number()
 
             if self.current_char.isalpha():
                 return self.id()

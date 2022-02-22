@@ -2,7 +2,10 @@
 
 [ ] Typing
 [ ] Number
-[ ] String
+[ ] List
+[ ] Dict
+[ ] FAIL-scope
+[X] String
 
 [X] print
 
