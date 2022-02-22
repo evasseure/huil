@@ -63,7 +63,7 @@ class Interpreter(NodeVisitor):
             return
 
         if function.id == "input":
-            # Un peu cheum
+            # TODO It's probably the users responsability to transform it to int ou float
             text = input(self.visit(node.arguments[0]))
             # https://nbviewer.org/github/rasbt/One-Python-benchmark-per-day/blob/master/ipython_nbs/day6_string_is_number.ipynb?create=1
             if text.isdigit():
@@ -88,7 +88,8 @@ class Interpreter(NodeVisitor):
         self.global_scope[node.id.value] = self.visit(node.value)
 
     def visit_VariableNode(self, node):
-        if self.global_scope.get(node.id) == None:
+        # we use "UNSET" as defautl for inexistant keys, this allows us to store None values in the dict
+        if self.global_scope.get(node.id, "UNSET") == "UNSET":
             raise NameError(f"Undeclared variable: {node.id} at (l{node.token.line}:c{node.token.column})")
         return self.global_scope[node.id]
 

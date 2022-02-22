@@ -1,4 +1,5 @@
-let num = input("Type a number to translate (0 -> 9): ")
+print("Type a number to translate (0 -> 9):")
+let num = input("-> ")
 let letter = match num:
     | 0 -> "zero"
     | 1 -> "one"

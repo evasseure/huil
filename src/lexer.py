@@ -107,7 +107,6 @@ class Lexer(object):
                 return Token(PLUS, "+", self.line, self.column)
 
             if self.current_char == "-" and self.peek() == ">":
-                print("oui")
                 self.advance(2)
                 return Token(ARROW, "->", self.line, self.column)
 
