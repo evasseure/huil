@@ -30,6 +30,11 @@ class StringNode(ASTNode):
 
 
 @dataclass
+class NilNode(ASTNode):
+    ...
+
+
+@dataclass
 class VariableNode(ASTNode):
     id: str
 
@@ -55,6 +60,12 @@ class FunctionCallNode(ASTNode):
 
 @dataclass
 class AssignmentNode(ASTNode):
+    id: str
+    value: Any
+
+
+@dataclass
+class DeclarationNode(ASTNode):
     id: str
     value: Any
 

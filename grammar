@@ -2,6 +2,8 @@ variable        : ID
 
 match           : MATCH factor COLON EOL (PIPE (factor | MUL) ARROW expr EOL)?
 
+assignment      : variable ASSIGN expr
+
 factor          : (PLUS | MINUS factor)
                     | INTEGER
                     | FLOAT
@@ -9,6 +11,7 @@ factor          : (PLUS | MINUS factor)
                     | LPAREN expr RPAREN
                     | match
                     | variable LPAREN (expr (COMMA | expr)*)? RPAREN
+                    | assignment
                     | variable
 
 term            : factor ((MUL | DIV | MOD) factor)*
@@ -17,9 +20,9 @@ expr            : term ((PLUS | MINUS) term)*
 
 function        : DEF variable LPAREN (variable (COMMA | variable)*)? RPAREN COLON EOL statement_list
 
-assignment      : LET variable ASSIGN expr
+declaration     : LET variable (ASSIGN expr)
 
-statement       : (assignment | function | expr)
+statement       : (declaration | assignment | function | expr)
 
 statement_list  : (statement EOL)*
 

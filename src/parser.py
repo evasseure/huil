@@ -19,7 +19,6 @@ class Parser(object):
         # otherwise raise an exception.
         if self.current_token.type == token_type:
             self.current_token = self.lexer.get_next_token()
-            print(self.current_token)
         else:
             self.error(self.current_token.type)
 
@@ -84,8 +83,11 @@ class Parser(object):
                     else:
                         self.eat(COMMA)
                 return FunctionCallNode(id_token, id_token.value, args)
-
-            return VariableNode(id_token, id=id_token.value)
+            elif self.current_token.type == ASSIGN:
+                self.eat(ASSIGN)
+                node = AssignmentNode(token=id_token, id=id_token.value, value=self.expr())
+            else:
+                return VariableNode(id_token, id=id_token.value)
 
     def term(self):
         node = self.factor()
@@ -117,16 +119,17 @@ class Parser(object):
 
         return node
 
-    def assignment(self):
+    def declaration(self):
         if self.current_token.type == LET:
             assign_token = self.current_token
             self.eat(LET)
             id_token = self.current_token
             self.eat(ID)
-            self.eat(ASSIGN)
-            node = AssignmentNode(token=assign_token, id=id_token, value=self.expr())
-
-        return node
+            if self.current_token.type == ASSIGN:
+                self.eat(ASSIGN)
+                return DeclarationNode(token=assign_token, id=id_token.value, value=self.expr())
+            else:
+                return DeclarationNode(token=assign_token, id=id_token.value, value=NilNode(None))
 
     def function(self):
         fn_token = self.current_token
@@ -157,7 +160,7 @@ class Parser(object):
 
     def statement(self):
         if self.current_token.type == LET:
-            return self.assignment()
+            return self.declaration()
         if self.current_token.type == DEF:
             return self.function()
         else:

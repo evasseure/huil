@@ -1,5 +1,6 @@
 from src.ast import FunctionNode, NumNode, StringNode
 from src.token import *
+from rich import print
 
 
 class NodeVisitor:
@@ -13,11 +14,12 @@ class NodeVisitor:
 
 
 class Interpreter(NodeVisitor):
-    def __init__(self, parser):
+    def __init__(self, parser, shared_scope={}):
         self.parser = parser
         self.global_scope = {
             "print": FunctionNode(None, "print", ["text"], []),
             "input": FunctionNode(None, "input", ["text"], []),
+            **shared_scope,
         }
 
     def visit_BinaryOpNode(self, node):
@@ -37,6 +39,9 @@ class Interpreter(NodeVisitor):
             return self.visit(node.value)
         elif node.token.type == MINUS:
             return -self.visit(node.value)
+
+    def visit_NilNode(self, node):
+        return None
 
     def visit_NumNode(self, node):
         return node.value
@@ -85,14 +90,20 @@ class Interpreter(NodeVisitor):
         self.global_scope = previous_state
         return returned
 
+    def visit_DeclarationNode(self, node):
+        if self.global_scope.get(node.id) is not None:
+            raise NameError(f"Variable already declared: {node.id} at (l{node.token.line}:c{node.token.column})")
+        self.global_scope[node.id] = node.value
+
     def visit_AssignmentNode(self, node):
-        self.global_scope[node.id.value] = self.visit(node.value)
+        if self.global_scope.get(node.id) is None:
+            raise NameError(f"Undeclared variable: {node.id} at (l{node.token.line}:c{node.token.column})")
+        self.global_scope[node.id] = node.value
 
     def visit_VariableNode(self, node):
-        # we use "UNSET" as defautl for inexistant keys, this allows us to store None values in the dict
-        if self.global_scope.get(node.id, "UNSET") == "UNSET":
+        if self.global_scope.get(node.id) is None:
             raise NameError(f"Undeclared variable: {node.id} at (l{node.token.line}:c{node.token.column})")
-        return self.global_scope[node.id]
+        return self.visit(self.global_scope[node.id])
 
     def visit_FunctionNode(self, node):
         self.global_scope[node.id] = node
@@ -100,6 +111,7 @@ class Interpreter(NodeVisitor):
     def visit_StatementListNode(self, node):
         last_value = None
         for statement in node.statements:
+            # print(self.global_scope)
             last_value = self.visit(statement)
         return last_value
 
