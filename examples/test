@@ -1,0 +1,7 @@
+let a = 1
+a + 9
+// Commentaire  // aaa
+let b = 4
+// Mega
+// comm
+a + b

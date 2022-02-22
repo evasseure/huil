@@ -14,6 +14,7 @@ class NodeVisitor:
 class Interpreter(NodeVisitor):
     def __init__(self, parser):
         self.parser = parser
+        self.global_scope = {}
 
     def visit_BinaryOpNode(self, node):
         if node.token.type == PLUS:
@@ -35,6 +36,20 @@ class Interpreter(NodeVisitor):
 
     def visit_NumNode(self, node):
         return node.value
+
+    def visit_AssignmentNode(self, node):
+        self.global_scope[node.id.value] = self.visit(node.value)
+
+    def visit_VariableNode(self, node):
+        if self.global_scope.get(node.id) == None:
+            raise NameError("Undeclared variable: " + node.id)
+        return self.global_scope[node.id]
+
+    def visit_StatementListNode(self, node):
+        last_value = None
+        for statement in node.statements:
+            last_value = self.visit(statement)
+        return last_value
 
     def interpret(self):
         tree = self.parser.parse()

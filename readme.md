@@ -1,5 +1,10 @@
 # Lang
 
+https://ruslanspivak.com/lsbasi-part9/
+https://norvig.com/lispy.html
+
+## Functionnalities
+
 - Typed
 - functionnal
 - low syntax

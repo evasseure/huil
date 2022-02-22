@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from tokenize import Token
+from typing import Any, List
 
 
 @dataclass
@@ -21,3 +22,19 @@ class UnaryOpNode(ASTNode):
 @dataclass
 class NumNode(ASTNode):
     value: int or float
+
+
+@dataclass
+class VariableNode(ASTNode):
+    id: str
+
+
+@dataclass
+class AssignmentNode(ASTNode):
+    id: str
+    value: Any
+
+
+@dataclass
+class StatementListNode(ASTNode):
+    statements: List[ASTNode]

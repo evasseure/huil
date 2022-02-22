@@ -1,0 +1,19 @@
+variable        : ID
+
+assignment      : LET variable ASSIGN expr
+
+factor          : (PLUS | MINUS factor)
+                    | INTEGER 
+                    | LPAREN expr RPAREN
+                    | variable
+
+term            : factor ((MUL | DIV | MOD) factor)*
+
+expr            : term ((PLUS | MINUS) term)*
+
+statement       : (assignment | expr)
+
+statement_list  : (statement EOL)* EOF
+
+program         : statement_list
+

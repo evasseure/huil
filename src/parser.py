@@ -1,6 +1,6 @@
-from ast import UnaryOp
 from src.token import *
 from src.ast import *
+from rich import print
 
 
 class Parser(object):
@@ -9,8 +9,8 @@ class Parser(object):
         # set current token to the first token taken from the input
         self.current_token = self.lexer.get_next_token()
 
-    def error(self):
-        raise Exception("Invalid syntax")
+    def error(self, token_type):
+        raise Exception("Invalid syntax:", token_type)
 
     def eat(self, token_type):
         # compare the current token type with the passed token
@@ -20,7 +20,7 @@ class Parser(object):
         if self.current_token.type == token_type:
             self.current_token = self.lexer.get_next_token()
         else:
-            self.error()
+            self.error(self.current_token.type)
 
     def factor(self):
         """factor : (PLUS | MINUS factor) | INTEGER | LPAREN expr RPAREN"""
@@ -28,10 +28,10 @@ class Parser(object):
         if token.type == PLUS:
             self.eat(PLUS)
             return UnaryOpNode(token, self.factor())
-        if token.type == MINUS:
+        elif token.type == MINUS:
             self.eat(MINUS)
             return UnaryOpNode(token, self.factor())
-        if token.type == INTEGER:
+        elif token.type == INTEGER:
             self.eat(INTEGER)
             return NumNode(token, int(token.value))
         elif token.type == LPAREN:
@@ -39,6 +39,9 @@ class Parser(object):
             node = self.expr()
             self.eat(RPAREN)
             return node
+        elif token.type == ID:
+            self.eat(ID)
+            return VariableNode(token, id=token.value)
 
     def term(self):
         """term : factor ((MUL | DIV | MOD) factor)*"""
@@ -58,11 +61,6 @@ class Parser(object):
         return node
 
     def expr(self):
-        """
-        expr   : term ((PLUS | MINUS) term)*
-        term   : factor ((MUL | DIV | MOD) factor)*
-        factor : INTEGER | LPAREN expr RPAREN
-        """
         node = self.term()
 
         while self.current_token.type in (PLUS, MINUS):
@@ -76,5 +74,35 @@ class Parser(object):
 
         return node
 
+    def assignment(self):
+        # assignment: LET variable ASSIGN expr
+        if self.current_token.type == LET:
+            assign_token = self.current_token
+            self.eat(LET)
+            id_token = self.current_token
+            self.eat(ID)
+            self.eat(ASSIGN)
+            node = AssignmentNode(token=assign_token, id=id_token, value=self.expr())
+
+        return node
+
+    def statement(self):
+        if self.current_token.type == LET:
+            return self.assignment()
+        else:
+            return self.expr()
+
+    def statement_list(self):
+        nodes = []
+        while self.current_token.type != EOF:
+            if self.current_token.type == EOL:
+                self.eat(EOL)
+                continue
+            nodes.append(self.statement())
+        return StatementListNode(None, nodes)
+
+    def program(self):
+        return self.statement_list()
+
     def parse(self):
-        return self.expr()
+        return self.program()

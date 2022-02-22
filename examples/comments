@@ -1,0 +1,9 @@
+let a = 1 // EOL comment
+a + 9
+// Commentaire  // aaa
+let b = 4
+//
+// Mega
+// comm
+a + b
+// EOF comment
