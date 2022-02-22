@@ -1,4 +1,4 @@
-from src.ast import FunctionNode
+from src.ast import FunctionNode, NumNode, StringNode
 from src.token import *
 
 
@@ -15,7 +15,10 @@ class NodeVisitor:
 class Interpreter(NodeVisitor):
     def __init__(self, parser):
         self.parser = parser
-        self.global_scope = {"print": FunctionNode(None, "print", ["text"], [])}
+        self.global_scope = {
+            "print": FunctionNode(None, "print", ["text"], []),
+            "input": FunctionNode(None, "input", ["text"], []),
+        }
 
     def visit_BinaryOpNode(self, node):
         if node.token.type == PLUS:
@@ -41,6 +44,15 @@ class Interpreter(NodeVisitor):
     def visit_StringNode(self, node):
         return node.value
 
+    def visit_MatchNode(self, node):
+        value = self.visit(node.factor)
+
+        for match in node.matches:
+            if self.visit(match[0]) == value:
+                return self.visit(match[1])
+
+        return None
+
     def visit_FunctionCallNode(self, node):
         function = self.global_scope.get(node.id)
         if function == None:
@@ -49,6 +61,16 @@ class Interpreter(NodeVisitor):
         if function.id == "print":
             print(self.visit(node.arguments[0]))
             return
+
+        if function.id == "input":
+            # Un peu cheum
+            text = input(self.visit(node.arguments[0]))
+            # https://nbviewer.org/github/rasbt/One-Python-benchmark-per-day/blob/master/ipython_nbs/day6_string_is_number.ipynb?create=1
+            if text.isdigit():
+                return self.visit(NumNode(None, int(text)))
+            if text.replace(".", "", 1).isdigit():
+                return self.visit(NumNode(None, float(text)))
+            return self.visit(StringNode(None, text))
 
         # We save the previous state before we start adding scoped variables
         previous_state = self.global_scope

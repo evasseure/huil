@@ -19,7 +19,7 @@ def run(code):
 
 def test_file(filename):
     with open(f"./examples/{filename}") as f:
-        print(run(f.read()))
+        print("\nReturned value:", run(f.read()))
 
 
 def run_tests():
@@ -46,7 +46,7 @@ if __name__ == "__main__":
                     let a = 1
                     a + 1
                 """
-        print("Returned value:", run(code))
+        print("\nReturned value:", run(code))
 
     elif sys.argv[1] == "-t":
         print("Running tests -----")

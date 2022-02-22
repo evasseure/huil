@@ -35,6 +35,12 @@ class VariableNode(ASTNode):
 
 
 @dataclass
+class MatchNode(ASTNode):
+    factor: ASTNode
+    matches: List[List[ASTNode]]
+
+
+@dataclass
 class FunctionNode(ASTNode):
     id: str
     arguments: List[str]

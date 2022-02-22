@@ -28,7 +28,7 @@ class Lexer(object):
         if self.pos + char_number > len(self.text) - 1:
             return None
         else:
-            return self.text[self.pos : self.pos + char_number]
+            return self.text[self.pos + char_number]
 
     def skip_whitespace(self):
         while self.current_char is not None and self.current_char.isspace():
@@ -106,6 +106,11 @@ class Lexer(object):
                 self.advance()
                 return Token(PLUS, "+", self.line, self.column)
 
+            if self.current_char == "-" and self.peek() == ">":
+                print("oui")
+                self.advance(2)
+                return Token(ARROW, "->", self.line, self.column)
+
             if self.current_char == "-":
                 self.advance()
                 return Token(MINUS, "-", self.line, self.column)
@@ -141,6 +146,10 @@ class Lexer(object):
             if self.current_char == ",":
                 self.advance()
                 return Token(COMMA, ",", self.line, self.column)
+
+            if self.current_char == "|":
+                self.advance()
+                return Token(PIPE, "|", self.line, self.column)
 
             if self.current_char == '"':
                 return Token(STRING, self.string(), self.line, self.column)

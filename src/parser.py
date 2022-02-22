@@ -10,7 +10,7 @@ class Parser(object):
         self.current_token = self.lexer.get_next_token()
 
     def error(self, token_type):
-        raise Exception("Invalid syntax:", token_type, self.lexer.column, self.lexer.line)
+        raise Exception(f"Invalid syntax: {token_type} at (l{self.lexer.line}:c{self.lexer.column})")
 
     def eat(self, token_type):
         # compare the current token type with the passed token
@@ -19,8 +19,28 @@ class Parser(object):
         # otherwise raise an exception.
         if self.current_token.type == token_type:
             self.current_token = self.lexer.get_next_token()
+            print(self.current_token)
         else:
             self.error(self.current_token.type)
+
+    def match(self):
+        token = self.current_token
+        self.eat(MATCH)
+        compared = self.factor()
+        self.eat(COLON)
+        self.eat(EOL)
+
+        matches = []
+        match_columns = self.current_token.column
+        while self.current_token.column == match_columns:
+            self.eat(PIPE)
+            match = self.factor()
+            self.eat(ARROW)
+            expr = self.expr()
+            self.eat(EOL)
+            matches.append([match, expr])
+
+        return MatchNode(token, compared, matches)
 
     def factor(self):
         token: Token = self.current_token
@@ -44,6 +64,8 @@ class Parser(object):
             node = self.expr()
             self.eat(RPAREN)
             return node
+        elif token.type == "MATCH":
+            return self.match()
         elif token.type == ID:
             id_token = self.current_token
             self.eat(ID)
@@ -51,7 +73,7 @@ class Parser(object):
                 self.eat(LPAREN)
                 args = []
                 while True:
-                    args.append(self.factor())
+                    args.append(self.expr())
                     if self.current_token.type == RPAREN:
                         self.eat(RPAREN)
                         break
@@ -62,7 +84,6 @@ class Parser(object):
             return VariableNode(id_token, id=id_token.value)
 
     def term(self):
-        """term : factor ((MUL | DIV | MOD) factor)*"""
         node = self.factor()
 
         while self.current_token.type in (MUL, DIV, MOD):
@@ -93,7 +114,6 @@ class Parser(object):
         return node
 
     def assignment(self):
-        # assignment: LET variable ASSIGN expr
         if self.current_token.type == LET:
             assign_token = self.current_token
             self.eat(LET)
@@ -105,8 +125,6 @@ class Parser(object):
         return node
 
     def function(self):
-        # DEF variable LPAREN (variable COMMA)* (variable)? RPAREN COLON EOL (statement)*
-
         fn_token = self.current_token
         self.eat(DEF)
         id_token = self.current_token

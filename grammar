@@ -1,20 +1,23 @@
 variable        : ID
 
-assignment      : LET variable ASSIGN expr
+match           : MATCH factor COLON EOL (PIPE factor ARROW expr EOL)?
 
 factor          : (PLUS | MINUS factor)
-                    | 
                     | INTEGER
+                    | FLOAT
                     | QUOTE STRING QUOTE
                     | LPAREN expr RPAREN
-                    | variable LPAREN (factor COMMA)* (variable)? RPAREN
+                    | match
+                    | variable LPAREN (expr (COMMA | expr)*)? RPAREN
                     | variable
 
 term            : factor ((MUL | DIV | MOD) factor)*
 
 expr            : term ((PLUS | MINUS) term)*
 
-function        : DEF variable LPAREN (variable COMMA)* (variable)? RPAREN COLON EOL statement_list
+function        : DEF variable LPAREN (variable (COMMA | variable)*)? RPAREN COLON EOL statement_list
+
+assignment      : LET variable ASSIGN expr
 
 statement       : (assignment | function | expr)
 
