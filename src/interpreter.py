@@ -60,7 +60,7 @@ class Interpreter(NodeVisitor):
 
     def visit_VariableNode(self, node):
         if self.global_scope.get(node.id) == None:
-            raise NameError("Undeclared variable: " + node.id)
+            raise NameError(f"Undeclared variable: {node.id} at (l{node.token.line}:c{node.token.column})")
         return self.global_scope[node.id]
 
     def visit_FunctionNode(self, node):

@@ -1,4 +1,6 @@
-# Lang
+# Hufl
+
+**H**ighly **U**noptimized **F**unctional **L**anguage
 
 https://ruslanspivak.com/lsbasi-part9/
 https://norvig.com/lispy.html

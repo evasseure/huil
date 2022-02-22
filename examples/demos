@@ -30,3 +30,9 @@ def say_hello():
 
 say_hello()
 ---------------
+
+let result =
+    if a > 5:
+        true
+    else
+        false

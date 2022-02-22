@@ -124,6 +124,8 @@ class Parser(object):
         while self.current_token.column == function_columns:
             statements.append(self.statement())
             self.eat(EOL)
+            print(function_columns, self.current_token.value)
+            print(self.current_token.column, function_columns)
 
         node = FunctionNode(fn_token, id=id_token.value, arguments=args, statements=StatementListNode(None, statements))
         return node

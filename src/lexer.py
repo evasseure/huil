@@ -51,14 +51,15 @@ class Lexer(object):
         return int(result)
 
     def id(self):
+        initial_col = self.column
         result = ""
         while self.current_char is not None and self.current_char.isalnum():
             result += self.current_char
             self.advance()
 
         token = RESERVED_KEYWORDS.get(result, Token(ID, result, self.line, self.column))
-        token.column = self.column
         token.line = self.line
+        token.column = initial_col
         return token
 
     def get_next_token(self):
