@@ -48,6 +48,16 @@ class Lexer(object):
 
         return int(result)
 
+    def string(self):
+        self.advance()
+        result = ""
+        while self.current_char is not None and self.current_char != '"':
+            result += self.current_char
+            self.advance()
+
+        self.advance()
+        return result
+
     def id(self):
         initial_col = self.column
         result = ""
@@ -128,6 +138,9 @@ class Lexer(object):
             if self.current_char == ",":
                 self.advance()
                 return Token(COMMA, ",", self.line, self.column)
+
+            if self.current_char == '"':
+                return Token(STRING, self.string(), self.line, self.column)
 
             self.error(self.current_char)
 

@@ -38,6 +38,9 @@ class Interpreter(NodeVisitor):
     def visit_NumNode(self, node):
         return node.value
 
+    def visit_StringNode(self, node):
+        return node.value
+
     def visit_FunctionCallNode(self, node):
         function = self.global_scope.get(node.id)
         if function == None:

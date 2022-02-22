@@ -3,7 +3,8 @@ variable        : ID
 assignment      : LET variable ASSIGN expr
 
 factor          : (PLUS | MINUS factor)
-                    | INTEGER 
+                    | INTEGER
+                    | QUOTE STRING QUOTE
                     | LPAREN expr RPAREN
                     | variable LPAREN (factor COMMA)* (variable)? RPAREN
                     | variable

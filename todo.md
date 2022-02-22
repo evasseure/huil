@@ -1,8 +1,10 @@
 # Todo
 
-## Builtins
+[ ] Typing
+[ ] Number
+[ ] String
 
-[ ] print
+[X] print
 
 ## Flow control
 

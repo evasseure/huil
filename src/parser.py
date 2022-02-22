@@ -34,6 +34,9 @@ class Parser(object):
         elif token.type == INTEGER:
             self.eat(INTEGER)
             return NumNode(token, int(token.value))
+        elif token.type == STRING:
+            self.eat(STRING)
+            return StringNode(token, token.value)
         elif token.type == LPAREN:
             self.eat(LPAREN)
             node = self.expr()

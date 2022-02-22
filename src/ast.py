@@ -25,6 +25,11 @@ class NumNode(ASTNode):
 
 
 @dataclass
+class StringNode(ASTNode):
+    value: str
+
+
+@dataclass
 class VariableNode(ASTNode):
     id: str
 
