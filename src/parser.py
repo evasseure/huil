@@ -59,6 +59,9 @@ class Parser(object):
         elif token.type == FLOAT:
             self.eat(FLOAT)
             return NumNode(token, float(token.value))
+        elif token.type == BOOLEAN:
+            self.eat(BOOLEAN)
+            return BooleanNode(token, token.value)
         elif token.type == STRING:
             self.eat(STRING)
             return StringNode(token, token.value)
@@ -108,13 +111,22 @@ class Parser(object):
     def expr(self):
         node = self.term()
 
-        while self.current_token.type in (PLUS, MINUS):
+        while self.current_token.type in (PLUS, MINUS, SUPEQUAL, INFEQUAL, SUP, INF, EQUAL):
             token = self.current_token
             if token.type == PLUS:
                 self.eat(PLUS)
             elif token.type == MINUS:
                 self.eat(MINUS)
-
+            elif token.type == SUPEQUAL:
+                self.eat(SUPEQUAL)
+            elif token.type == INFEQUAL:
+                self.eat(INFEQUAL)
+            elif token.type == SUP:
+                self.eat(SUP)
+            elif token.type == INF:
+                self.eat(INF)
+            elif token.type == EQUAL:
+                self.eat(EQUAL)
             node = BinaryOpNode(left=node, token=token, right=self.term())
 
         return node

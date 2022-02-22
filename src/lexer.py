@@ -134,6 +134,26 @@ class Lexer(object):
                 self.advance()
                 return Token(RPAREN, ")", self.line, self.column)
 
+            if self.current_char == ">" and self.peek() == "=":
+                self.advance(2)
+                return Token(SUPEQUAL, ">=", self.line, self.column)
+
+            if self.current_char == "<" and self.peek() == "=":
+                self.advance(2)
+                return Token(INFEQUAL, "<=", self.line, self.column)
+
+            if self.current_char == ">":
+                self.advance()
+                return Token(SUP, ">", self.line, self.column)
+
+            if self.current_char == "<":
+                self.advance()
+                return Token(INF, "<", self.line, self.column)
+
+            if self.current_char == "=" and self.peek() == "=":
+                self.advance(2)
+                return Token(EQUAL, "==", self.line, self.column)
+
             if self.current_char == "=":
                 self.advance()
                 return Token(ASSIGN, "=", self.line, self.column)

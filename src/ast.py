@@ -15,6 +15,11 @@ class BinaryOpNode(ASTNode):
 
 
 @dataclass
+class BooleanNode(ASTNode):
+    value: bool
+
+
+@dataclass
 class UnaryOpNode(ASTNode):
     value: ASTNode
 

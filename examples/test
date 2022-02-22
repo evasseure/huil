@@ -1,4 +1,1 @@
-let a
-let b = 1
 
-print(a)

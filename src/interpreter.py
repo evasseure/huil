@@ -33,6 +33,16 @@ class Interpreter(NodeVisitor):
             return self.visit(node.left) / self.visit(node.right)
         elif node.token.type == MOD:
             return self.visit(node.left) % self.visit(node.right)
+        elif node.token.type == INFEQUAL:
+            return self.visit(node.left) <= self.visit(node.right)
+        elif node.token.type == SUPEQUAL:
+            return self.visit(node.left) >= self.visit(node.right)
+        elif node.token.type == INF:
+            return self.visit(node.left) < self.visit(node.right)
+        elif node.token.type == SUP:
+            return self.visit(node.left) > self.visit(node.right)
+        elif node.token.type == EQUAL:
+            return self.visit(node.left) == self.visit(node.right)
 
     def visit_UnaryOpNode(self, node):
         if node.token.type == PLUS:
@@ -44,6 +54,9 @@ class Interpreter(NodeVisitor):
         return None
 
     def visit_NumNode(self, node):
+        return node.value
+
+    def visit_BooleanNode(self, node):
         return node.value
 
     def visit_StringNode(self, node):

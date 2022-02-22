@@ -4,9 +4,12 @@ match           : MATCH factor COLON EOL (PIPE (factor | MUL) ARROW expr EOL)?
 
 assignment      : variable ASSIGN expr
 
+if-then-else    : IF condition COLON EOL (expr EOL)* (ELIF (expr EOL)*)* (ELSE (expr EOL)*)?
+
 factor          : (PLUS | MINUS factor)
                     | INTEGER
                     | FLOAT
+                    | BOOLEAN
                     | QUOTE STRING QUOTE
                     | LPAREN expr RPAREN
                     | match
@@ -16,7 +19,7 @@ factor          : (PLUS | MINUS factor)
 
 term            : factor ((MUL | DIV | MOD) factor)*
 
-expr            : term ((PLUS | MINUS) term)*
+expr            : term ((PLUS | MINUS | SUPEQUAL | INFEQUAL | SUP | INF | EQUAL) term)*
 
 function        : DEF variable LPAREN (variable (COMMA | variable)*)? RPAREN COLON EOL statement_list
 

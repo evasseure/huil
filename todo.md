@@ -1,6 +1,9 @@
 # Todo
 
-[ ] REPL
+[ ] boolean
+[ ] if/then/else
+[ ] for loop / map ?
+[ ] while ?
 [ ] to_int()
 [ ] to_float()
 [ ] to_string()
@@ -8,9 +11,9 @@
 [ ] Dict
 [ ] FAIL-scope
 [ ] Simple stack trace
-[ ] if/then/else
-[ ] empty var declaration
-[ ] for loop / map ?
+[ ] Multi line REPL (rich repl?)
+[X] empty var declaration
+[X] Basic REPL
 [X] Partern matching all (\*)
 [X] Integer
 [X] Float
