@@ -19,7 +19,7 @@ factor          : (PLUS | MINUS factor)
 
 term            : factor ((MUL | DIV | MOD) factor)*
 
-expr            : term ((PLUS | MINUS | SUPEQUAL | INFEQUAL | SUP | INF | EQUAL) term)*
+expr            : term ((PLUS | MINUS | AND | OR | SUPEQUAL | INFEQUAL | SUP | INF | EQUAL) term)*
 
 function        : DEF variable LPAREN (variable (COMMA | variable)*)? RPAREN COLON EOL statement_list
 

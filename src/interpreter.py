@@ -33,6 +33,10 @@ class Interpreter(NodeVisitor):
             return self.visit(node.left) / self.visit(node.right)
         elif node.token.type == MOD:
             return self.visit(node.left) % self.visit(node.right)
+        elif node.token.type == AND:
+            return self.visit(node.left) and self.visit(node.right)
+        elif node.token.type == OR:
+            return self.visit(node.left) or self.visit(node.right)
         elif node.token.type == INFEQUAL:
             return self.visit(node.left) <= self.visit(node.right)
         elif node.token.type == SUPEQUAL:

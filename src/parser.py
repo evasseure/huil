@@ -111,12 +111,16 @@ class Parser(object):
     def expr(self):
         node = self.term()
 
-        while self.current_token.type in (PLUS, MINUS, SUPEQUAL, INFEQUAL, SUP, INF, EQUAL):
+        while self.current_token.type in (PLUS, MINUS, AND, OR, SUPEQUAL, INFEQUAL, SUP, INF, EQUAL):
             token = self.current_token
             if token.type == PLUS:
                 self.eat(PLUS)
             elif token.type == MINUS:
                 self.eat(MINUS)
+            elif token.type == AND:
+                self.eat(AND)
+            elif token.type == OR:
+                self.eat(OR)
             elif token.type == SUPEQUAL:
                 self.eat(SUPEQUAL)
             elif token.type == INFEQUAL:
