@@ -1,4 +1,5 @@
 from src.ast import FunctionNode, NumNode, StringNode
+from src.environment import Environment
 from src.token import *
 from rich import print
 import readline  # Necessary to have a nice python input()
@@ -15,13 +16,14 @@ class NodeVisitor:
 
 
 class Interpreter(NodeVisitor):
-    def __init__(self, parser, shared_scope={}):
-        self.parser = parser
-        self.global_scope = {
-            "print": FunctionNode(None, "print", ["text"], []),
-            "input": FunctionNode(None, "input", ["text"], []),
-            **shared_scope,
-        }
+    def __init__(self, shared_scope={}):
+        self.env = Environment(
+            {
+                "print": FunctionNode(None, "print", ["text"], []),
+                "input": FunctionNode(None, "input", ["text"], []),
+                **shared_scope,
+            }
+        )
 
     def visit_BinaryOpNode(self, node):
         if node.token.type == PLUS:
@@ -81,9 +83,7 @@ class Interpreter(NodeVisitor):
         return None
 
     def visit_FunctionCallNode(self, node):
-        function = self.global_scope.get(node.id)
-        if function == None:
-            raise NameError("Undeclared function: " + node.id)
+        function = self.env.get(node.id)
 
         if function.id == "print":
             print(self.visit(node.arguments[0]))
@@ -103,15 +103,16 @@ class Interpreter(NodeVisitor):
             return self.visit(StringNode(None, text))
 
         # We save the previous state before we start adding scoped variables
-        previous_state = self.global_scope
+        previous_state = self.env
+        self.env = Environment(previous_state)
 
         for i in range(len(function.arguments)):
-            self.global_scope[function.arguments[i]] = self.visit(node.arguments[i])
+            self.env.declare(function.arguments[i], self.visit(node.arguments[i]))
 
         returned = self.visit(
-            self.global_scope[node.id].statements,
+            self.env.get(node.id).statements,
         )
-        self.global_scope = previous_state
+        self.env = previous_state
         return returned
 
     def visit_IfThenElseNode(self, node):
@@ -124,29 +125,30 @@ class Interpreter(NodeVisitor):
             return self.visit(node.else_statements)
 
     def visit_DeclarationNode(self, node):
-        if self.global_scope.get(node.id) is not None:
-            raise NameError(f"Variable already declared: {node.id} at (l{node.token.line}:c{node.token.column})")
-        self.global_scope[node.id] = self.visit(node.value)
+        # if self.global_scope.get(node.id) is not None:
+        #     raise NameError(f"Variable already declared: {node.id} at (l{node.token.line}:c{node.token.column})")
+        self.env.declare(node.id, self.visit(node.value))
 
     def visit_AssignmentNode(self, node):
-        if self.global_scope.get(node.id) is None:
-            raise NameError(f"Undeclared variable: {node.id} at (l{node.token.line}:c{node.token.column})")
-        self.global_scope[node.id] = self.visit(node.value)
+        # if self.global_scope.get(node.id) is None:
+        #     raise NameError(f"Undeclared variable: {node.id} at (l{node.token.line}:c{node.token.column})")
+        self.env.set(node.id, self.visit(node.value))
 
     def visit_VariableNode(self, node):
-        if self.global_scope.get(node.id) is None:
-            raise NameError(f"Undeclared variable: {node.id} at (l{node.token.line}:c{node.token.column})")
-        return self.visit(self.global_scope[node.id])
+        # if self.global_scope.get(node.id) is None:
+        #     raise NameError(f"Undeclared variable: {node.id} at (l{node.token.line}:c{node.token.column})")
+        return self.env.get(node.id)
 
     def visit_FunctionNode(self, node):
-        self.global_scope[node.id] = node
+        self.env.declare(node.id, node)
 
     def visit_StatementListNode(self, node):
         last_value = None
         for statement in node.statements:
             last_value = self.visit(statement)
+            # print(self.env.values)
         return last_value
 
-    def interpret(self):
-        tree = self.parser.parse()
+    def interpret(self, parser):
+        tree = parser.parse()
         return self.visit(tree)

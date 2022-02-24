@@ -1,10 +1,8 @@
-let a = input("> ")
+let a = 5
+print(a)
 
-if a > 2:
-    print("< 2")
-elif a < 0:
-    print("< 0")
-elif a >= 2 and a < 7:
-    print(">= 2 and < 7")
-else:
-    print("other")
+def test(a):
+    print(a)
+
+test(2)
+print(a)

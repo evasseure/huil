@@ -4,7 +4,7 @@ from src.reserved_keywords import RESERVED_KEYWORDS
 from src.token import *
 
 
-class Lexer(object):
+class Lexer:
     def __init__(self, text):
         self.text = text
         self.pos = 0
@@ -12,8 +12,8 @@ class Lexer(object):
         self.column = 0
         self.current_char = self.text[self.pos]
 
-    def error(self, char):
-        raise Exception("Invalid character:", char)
+    def error(self):
+        raise Exception(f"Invalid character: '{self.current_char}' at (l{self.line + 1}:c{self.column + 1})")
 
     def advance(self, amount=1):
         """Advance the `pos` pointer and set the `current_char` variable."""
@@ -47,11 +47,12 @@ class Lexer(object):
             self.advance()
 
         if "." in result:
-            return Token(FLOAT, result, self.line, self.column)
+            return Token(FLOAT, float(result), self.line, self.column)
         else:
-            return Token(INTEGER, result, self.line, self.column)
+            return Token(INTEGER, int(result), self.line, self.column)
 
     def string(self):
+        initial_col = self.column
         self.advance()
         result = ""
         while self.current_char is not None and self.current_char != '"':
@@ -59,7 +60,7 @@ class Lexer(object):
             self.advance()
 
         self.advance()
-        return result
+        return Token(STRING, result, self.line, initial_col)
 
     def id(self):
         initial_col = self.column
@@ -171,7 +172,7 @@ class Lexer(object):
                 return Token(PIPE, "|", self.line, self.column)
 
             if self.current_char == '"':
-                return Token(STRING, self.string(), self.line, self.column)
+                return self.string()
 
             self.error(self.current_char)
 

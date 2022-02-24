@@ -13,9 +13,10 @@ def run(code):
 
     lexer = Lexer(code)
     parser = Parser(lexer)
-    interpreter = Interpreter(parser)
-    result = interpreter.interpret()
-    return result
+    interpreter = Interpreter()
+    # print(parser.parse())
+    # return "Interpretor disabled"
+    return interpreter.interpret(parser)
 
 
 def test_file(filename):
@@ -35,8 +36,8 @@ def repl():
                 continue
             lexer = Lexer(code)
             parser = Parser(lexer)
-            interpreter = Interpreter(parser, shared_scope)
-            result = interpreter.interpret()
+            interpreter = Interpreter(shared_scope)
+            result = interpreter.interpret(parser)
             print(result)
             shared_scope = interpreter.global_scope
         except EOFError:

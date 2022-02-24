@@ -1,6 +1,6 @@
-# Hufl
+# Hul
 
-**H**ighly **U**noptimized **F**unctional **L**anguage
+**H**ighly **U**noptimized **L**anguage
 
 https://ruslanspivak.com/lsbasi-part9/
 https://norvig.com/lispy.html

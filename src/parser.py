@@ -3,14 +3,14 @@ from src.ast import *
 from rich import print
 
 
-class Parser(object):
+class Parser:
     def __init__(self, lexer):
         self.lexer = lexer
         # set current token to the first token taken from the input
         self.current_token = self.lexer.get_next_token()
 
     def error(self, token_type):
-        raise Exception(f"Invalid syntax: {token_type} at (l{self.lexer.line}:c{self.lexer.column})")
+        raise Exception(f"Invalid syntax: {token_type} at (l{self.lexer.line + 1}:c{self.lexer.column + 1})")
 
     def eat(self, token_type):
         # compare the current token type with the passed token
@@ -238,7 +238,7 @@ class Parser(object):
                 self.eat(EOL)
                 continue
             nodes.append(self.statement())
-            print(nodes)
+            # print(nodes)
         return StatementListNode(None, nodes)
 
     def program(self):

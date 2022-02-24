@@ -25,7 +25,11 @@ function        : DEF variable LPAREN (variable (COMMA | variable)*)? RPAREN COL
 
 declaration     : LET variable (ASSIGN expr)
 
-statement       : (declaration | assignment | function | if_control_flow | expr)
+statement       : declaration
+                    | assignment
+                    | function
+                    | if_control_flow
+                    | expr
 
 statement_list  : (statement EOL)*
 
