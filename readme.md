@@ -1,26 +1,11 @@
 # Hul
 
-**H**ighly **U**noptimized **L**anguage
-
-https://ruslanspivak.com/lsbasi-part9/
-https://norvig.com/lispy.html
+**H**ighly **U**noptimized **L**anguage is a **general purpose language**.  
+It's nice for little server things.
 
 ## Functionnalities
 
-- Typed
-- functionnal
-- low syntax
-- anonymous functions
-- dict
-- generics?
-
-## Types
-
-- int
-- float
-- string
-- array/list
-- dict
+- none
 
 ## Links
 

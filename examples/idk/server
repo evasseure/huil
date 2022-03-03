@@ -1,14 +1,19 @@
 fn index(req):
-    "<html><h1>Hello world</h1></html>"
+    return "<html><h1>Hello world</h1></html>"
 
 fn books(req):
     let books = ["book" + i for i in ..5]
     return books
 
+fn weather(req):
+    let resp = http.get("https://weather.com/api/")
+    return response.json()
+
 fn listen(req):
-    match req.url:
+    return match req.url:
         | "/" -> index(req)
         | "/books" -> books(req)
+        | "/weather" -> weather(req)
         | * -> not_found(req)
 
 let server = Server()

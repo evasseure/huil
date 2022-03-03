@@ -5,6 +5,15 @@ from rich import print
 import readline  # Necessary to have a nice python input()
 
 
+class RuntimeException(Exception):
+    pass
+
+
+class TypeError(RuntimeException):
+    def __init__(self, message):
+        super().__init__(message)
+
+
 class NodeVisitor:
     def visit(self, node):
         method_name = "visit_" + type(node).__name__
@@ -12,59 +21,65 @@ class NodeVisitor:
         return visitor(node)
 
     def unhandled_visit(self, node):
-        raise Exception("No visit_{} method".format(type(node).__name__))
+        raise Exception("InterpreterError: No visit_{} method".format(type(node).__name__))
 
 
 class Interpreter(NodeVisitor):
-    def __init__(self, shared_scope={}):
-        self.env = Environment(
-            {
-                "print": FunctionNode(None, "print", ["text"], []),
-                "input": FunctionNode(None, "input", ["text"], []),
-                **shared_scope,
-            }
-        )
+    def __init__(self):
+        self.env = Environment()
 
     def visit_BinaryOpNode(self, node):
+        left = self.visit(node.left)
+        right = self.visit(node.right)
+
+        if node.token.type in (AND, OR):
+            if (type(left) != bool) or (type(right) != bool):
+                raise TypeError(f"Can't do {node.left.token.type} {node.token.value} {node.right.token.type}")
+
+            if node.token.type == AND:
+                return left and right
+            elif node.token.type == OR:
+                return left or right
+
+        if (type(left) != int and type(left) != float) or (type(right) != int and type(right) != float):
+            raise TypeError(f"Can't do {node.left.token.type} {node.token.value} {node.right.token.type}")
+
         if node.token.type == PLUS:
-            return self.visit(node.left) + self.visit(node.right)
+            return left + right
         elif node.token.type == MINUS:
-            return self.visit(node.left) - self.visit(node.right)
+            return left - right
         elif node.token.type == MUL:
-            return self.visit(node.left) * self.visit(node.right)
+            return left * right
         elif node.token.type == DIV:
-            return self.visit(node.left) / self.visit(node.right)
+            return left / right
         elif node.token.type == MOD:
-            return self.visit(node.left) % self.visit(node.right)
-        elif node.token.type == AND:
-            return self.visit(node.left) and self.visit(node.right)
-        elif node.token.type == OR:
-            return self.visit(node.left) or self.visit(node.right)
-        elif node.token.type == INFEQUAL:
-            return self.visit(node.left) <= self.visit(node.right)
+            return left % right
         elif node.token.type == SUPEQUAL:
-            return self.visit(node.left) >= self.visit(node.right)
+            return left >= right
         elif node.token.type == INF:
-            return self.visit(node.left) < self.visit(node.right)
+            return left < right
         elif node.token.type == SUP:
-            return self.visit(node.left) > self.visit(node.right)
+            return left > right
         elif node.token.type == EQUAL:
-            return self.visit(node.left) == self.visit(node.right)
+            return left == right
+        elif node.token.type == INFEQUAL:
+            return left <= right
 
     def visit_UnaryOpNode(self, node):
+        value = self.visit(node.value)
+        if type(value) != int and type(value) != float:
+            raise TypeError(f"Can't do {node.token.value} {value}")
+
         if node.token.type == PLUS:
-            return self.visit(node.value)
+            return value
         elif node.token.type == MINUS:
-            return -self.visit(node.value)
+            return -value
 
     def visit_NilNode(self, node):
         return None
 
     def visit_NumNode(self, node):
-        if node.token.type == INTEGER:
-            return int(node.token.value)
-        if node.token.type == FLOAT:
-            return float(node.token.value)
+        return node.value
 
     def visit_BooleanNode(self, node):
         return node.value
@@ -106,7 +121,13 @@ class Interpreter(NodeVisitor):
         previous_state = self.env
         self.env = Environment(previous_state)
 
-        for i in range(len(function.arguments)):
+        fn_args_count = len(function.arguments)
+        fn_call_args_count = len(node.arguments)
+        if fn_args_count > fn_call_args_count:
+            raise TypeError(f"Missing arguments {function.arguments[fn_args_count-fn_call_args_count-1:]}")
+        # We son't care about extra fn call arguments
+
+        for i in range(fn_args_count):
             self.env.declare(function.arguments[i], self.visit(node.arguments[i]))
 
         returned = self.visit(
@@ -119,24 +140,19 @@ class Interpreter(NodeVisitor):
         for i in range(len(node.conditions)):
             res = self.visit(node.conditions[i])
             if res:
+                print(node.truthy_statements[i])
                 return self.visit(node.truthy_statements[i])
 
         if node.else_statements:
             return self.visit(node.else_statements)
 
     def visit_DeclarationNode(self, node):
-        # if self.global_scope.get(node.id) is not None:
-        #     raise NameError(f"Variable already declared: {node.id} at (l{node.token.line}:c{node.token.column})")
         self.env.declare(node.id, self.visit(node.value))
 
     def visit_AssignmentNode(self, node):
-        # if self.global_scope.get(node.id) is None:
-        #     raise NameError(f"Undeclared variable: {node.id} at (l{node.token.line}:c{node.token.column})")
         self.env.set(node.id, self.visit(node.value))
 
     def visit_VariableNode(self, node):
-        # if self.global_scope.get(node.id) is None:
-        #     raise NameError(f"Undeclared variable: {node.id} at (l{node.token.line}:c{node.token.column})")
         return self.env.get(node.id)
 
     def visit_FunctionNode(self, node):
@@ -146,7 +162,6 @@ class Interpreter(NodeVisitor):
         last_value = None
         for statement in node.statements:
             last_value = self.visit(statement)
-            # print(self.env.values)
         return last_value
 
     def interpret(self, parser):

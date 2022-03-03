@@ -9,7 +9,7 @@ ID = "ID"
 
 # Reserved
 LET = "LET"
-DEF = "DEF"
+FN = "FN"
 MATCH = "MATCH"
 AND = "AND"
 OR = "OR"
@@ -23,6 +23,7 @@ MINUS = "MINUS"
 MUL = "MUL"
 MOD = "MOD"
 DIV = "DIV"
+INTDIV = "INTDIV"
 LPAREN = "LPAREN"
 RPAREN = "RPAREN"
 ASSIGN = "ASSIGN"
@@ -40,5 +41,5 @@ INFEQUAL = "INFEQUAL"
 ARROW = "ARROW"
 
 # Others
-EOL = "EOL"
+NEWLINE = "NEWLINE"
 EOF = "EOF"

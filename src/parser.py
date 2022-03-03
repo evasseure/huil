@@ -6,13 +6,14 @@ from rich import print
 class Parser:
     def __init__(self, lexer):
         self.lexer = lexer
-        # set current token to the first token taken from the input
         self.current_token = self.lexer.get_next_token()
 
-    def error(self, token_type):
-        raise Exception(f"Invalid syntax: {token_type} at (l{self.lexer.line + 1}:c{self.lexer.column + 1})")
+    def error(self, token_type, error_message=None):
+        if not error_message:
+            raise Exception(f"Invalid syntax: {token_type} at (l{self.lexer.line + 1}:c{self.lexer.column + 1})")
+        raise Exception(f"{error_message} at (l{self.lexer.line + 1}:c{self.lexer.column + 1})")
 
-    def eat(self, token_type):
+    def eat(self, token_type, error_message=None):
         # compare the current token type with the passed token
         # type and if they match then "eat" the current token
         # and assign the next token to the self.current_token,
@@ -20,45 +21,16 @@ class Parser:
         if self.current_token.type == token_type:
             self.current_token = self.lexer.get_next_token()
         else:
-            self.error(self.current_token.type)
+            self.error(self.current_token.type, error_message)
 
-    def match(self):
-        token = self.current_token
-        self.eat(MATCH)
-        compared = self.factor()
-        self.eat(COLON)
-        self.eat(EOL)
-
-        matches = []
-        match_columns = self.current_token.column
-        while self.current_token.column == match_columns:
-            self.eat(PIPE)
-            if self.current_token.type == MUL:
-                match = StringNode(self.current_token, "*")
-                self.eat(MUL)
-            else:
-                match = self.factor()
-            self.eat(ARROW)
-            expr = self.expr()
-            self.eat(EOL)
-            matches.append([match, expr])
-
-        return MatchNode(token, compared, matches)
-
-    def factor(self):
+    def atom(self):
         token: Token = self.current_token
-        if token.type == PLUS:
-            self.eat(PLUS)
-            return UnaryOpNode(token, self.factor())
-        elif token.type == MINUS:
-            self.eat(MINUS)
-            return UnaryOpNode(token, self.factor())
-        elif token.type == INTEGER:
+        if token.type == INTEGER:
             self.eat(INTEGER)
-            return NumNode(token)
+            return NumNode(token, int(token.value))
         elif token.type == FLOAT:
             self.eat(FLOAT)
-            return NumNode(token)
+            return NumNode(token, float(token.value))
         elif token.type == BOOLEAN:
             self.eat(BOOLEAN)
             return BooleanNode(token, token.value)
@@ -67,45 +39,56 @@ class Parser:
             return StringNode(token, token.value)
         elif token.type == LPAREN:
             self.eat(LPAREN)
-            node = self.expr()
+            node = self.expression()
             self.eat(RPAREN)
             return node
-        elif token.type == "MATCH":
-            return self.match()
         elif token.type == ID:
             id_token = self.current_token
             self.eat(ID)
-            if self.current_token.type == LPAREN:
-                self.eat(LPAREN)
-                args = []
-                if self.current_token.type != RPAREN:
-                    while True:
-                        args.append(self.expr())
-                        if self.current_token.type == RPAREN:
-                            self.eat(RPAREN)
-                            break
-                        else:
-                            self.eat(COMMA)
-                else:
-                    self.eat(RPAREN)
-                return FunctionCallNode(id_token, id_token.value, args)
-            elif self.current_token.type == ASSIGN:
-                self.eat(ASSIGN)
-                return AssignmentNode(token=id_token, id=id_token.value, value=self.expr())
-            else:
-                return VariableNode(id_token, id=id_token.value)
+            return VariableNode(id_token, id=id_token.value)
 
-        self.error(token.type)
+        # self.error(token.type)
+
+    def primary(self):
+        id_token: Token = self.current_token
+        node = self.atom()
+        token: Token = self.current_token
+        if token.type == LPAREN:
+            self.eat(LPAREN)
+            args = []
+            if self.current_token.type != RPAREN:
+                while True:
+                    args.append(self.expression())
+                    if self.current_token.type == RPAREN:
+                        self.eat(RPAREN)
+                        break
+                    else:
+                        self.eat(COMMA)
+            else:
+                self.eat(RPAREN)
+            return FunctionCallNode(id_token, id_token.value, args)
+        return node
+
+    def factor(self):
+        token = self.current_token
+        if token.type == PLUS:
+            self.eat(PLUS)
+            return UnaryOpNode(token, self.factor())
+        elif token.type == MINUS:
+            self.eat(MINUS)
+            return UnaryOpNode(token, self.factor())
+        return self.primary()
 
     def term(self):
         node = self.factor()
-
-        while self.current_token.type in (MUL, DIV, MOD):
+        while self.current_token.type in (MUL, DIV, INTDIV, MOD):
             token = self.current_token
             if token.type == MUL:
                 self.eat(MUL)
             elif token.type == DIV:
                 self.eat(DIV)
+            elif token.type == INTDIV:
+                self.eat(INTDIV)
             elif token.type == MOD:
                 self.eat(MOD)
 
@@ -113,7 +96,7 @@ class Parser:
 
         return node
 
-    def expr(self):
+    def expression(self):
         node = self.term()
 
         while self.current_token.type in (PLUS, MINUS, AND, OR, SUPEQUAL, INFEQUAL, SUP, INF, EQUAL):
@@ -122,10 +105,6 @@ class Parser:
                 self.eat(PLUS)
             elif token.type == MINUS:
                 self.eat(MINUS)
-            elif token.type == AND:
-                self.eat(AND)
-            elif token.type == OR:
-                self.eat(OR)
             elif token.type == SUPEQUAL:
                 self.eat(SUPEQUAL)
             elif token.type == INFEQUAL:
@@ -136,25 +115,41 @@ class Parser:
                 self.eat(INF)
             elif token.type == EQUAL:
                 self.eat(EQUAL)
+            elif token.type == AND:
+                self.eat(AND)
+            elif token.type == OR:
+                self.eat(OR)
             node = BinaryOpNode(left=node, token=token, right=self.term())
 
         return node
 
-    def declaration(self):
-        if self.current_token.type == LET:
-            assign_token = self.current_token
-            self.eat(LET)
-            id_token = self.current_token
-            self.eat(ID)
-            if self.current_token.type == ASSIGN:
-                self.eat(ASSIGN)
-                return DeclarationNode(token=assign_token, id=id_token.value, value=self.expr())
-            else:
-                return DeclarationNode(token=assign_token, id=id_token.value, value=NilNode(None))
+    def assignment(self):
+        id_token = self.current_token
 
-    def function(self):
+        # A single token lookahead recursive descent parser can’t see far enough to tell that it’s parsing an
+        # assignment until after it has gone through the left-hand side and stumbled onto the =.
+        # FRANCHEMENT, je saurais pas l'expliquer pour l'instant, je sais même pas si c'est correct
+        expr = self.expression()
+        if self.current_token.type == ASSIGN:
+            self.eat(ASSIGN)
+            return AssignmentNode(token=id_token, id=id_token.value, value=self.expression())
+
+        return expr
+
+    def declaration(self):
+        self.eat(LET)
+        assign_token = self.current_token
+        id_token = self.current_token
+        self.eat(ID, "Expected variable name, not: " + self.current_token.type)
+        if self.current_token.type == ASSIGN:
+            self.eat(ASSIGN)
+            return DeclarationNode(token=assign_token, id=id_token.value, value=self.expression())
+        else:
+            return DeclarationNode(token=assign_token, id=id_token.value, value=NilNode(None))
+
+    def function_def(self):
         fn_token = self.current_token
-        self.eat(DEF)
+        self.eat(FN)
         id_token = self.current_token
         self.eat(ID)
         self.eat(LPAREN)
@@ -168,83 +163,77 @@ class Parser:
             else:
                 self.eat(COMMA)
         self.eat(COLON)
-        self.eat(EOL)
+        self.eat(NEWLINE)
+        return FunctionNode(fn_token, id=id_token.value, arguments=args, statements=self.statements(block=True))
 
-        statements = []
-        function_columns = self.current_token.column
-        while self.current_token.column == function_columns:
-            statements.append(self.statement())
-            self.eat(EOL)
-
-        node = FunctionNode(fn_token, id=id_token.value, arguments=args, statements=StatementListNode(None, statements))
-        return node
-
-    def if_control_flow(self):
-        if_token = self.current_token
+    def if_stmt(self):
+        token = self.current_token
         self.eat(IF)
-        conditions = [self.expr()]
+        conditions = [self.expression()]
         self.eat(COLON)
-        self.eat(EOL)
-        if_statements = []
-        statements_columns = self.current_token.column
-        while self.current_token.column == statements_columns:
-            if_statements.append(self.statement())
-            self.eat(EOL)
-        truthy_statements = [if_statements]
+        self.eat(NEWLINE)
+        truthy_statements = [self.statements(block=True)]
 
         while self.current_token.type == ELIF:
             self.eat(ELIF)
-            conditions.append(self.expr())
+            conditions.append(self.expression())
             self.eat(COLON)
-            self.eat(EOL)
-            elif_statements = []
-            statements_columns = self.current_token.column
-            while self.current_token.column == statements_columns:
-                elif_statements.append(self.statement())
-                self.eat(EOL)
-            truthy_statements.append(elif_statements)
+            self.eat(NEWLINE)
+            truthy_statements.append(self.statements(block=True))
 
         else_statements = []
         if self.current_token.type == ELSE:
             self.eat(ELSE)
             self.eat(COLON)
-            self.eat(EOL)
-            statements_columns = self.current_token.column
-            while self.current_token.column == statements_columns:
-                else_statements.append(self.statement())
-                self.eat(EOL)
+            self.eat(NEWLINE)
+            else_statements = self.statements(block=True)
 
         return IfThenElseNode(
-            if_token,
+            token,
             conditions,
-            [StatementListNode(None, statm) for statm in truthy_statements],
-            StatementListNode(None, else_statements),
+            truthy_statements,
+            else_statements,
         )
 
-    def statement(self):
+    def simple_stmt(self):
         if self.current_token.type == LET:
             return self.declaration()
-        if self.current_token.type == DEF:
-            return self.function()
-        if self.current_token.type == IF:
-            return self.if_control_flow()
-        else:
-            return self.expr()
+        if self.current_token.type == ID:
+            return self.assignment()
+        return self.expression()
 
-    def statement_list(self):
+    def compound_stmt(self):
+        if self.current_token.type == IF:
+            return self.if_stmt()
+        if self.current_token.type == FN:
+            return self.function_def()
+
+    def simple_stmts(self):
+        stmt = self.simple_stmt()
+        if stmt:
+            self.eat(NEWLINE, "Expected newline")
+        return stmt
+
+    def statements(self, block=False):
         nodes = []
-        while self.current_token.type != EOF:
-            if self.current_token.type == EOL:
-                self.eat(EOL)
+
+        current_indent = self.current_token.column
+        while self.current_token.type != EOF and (not block or self.current_token.column == current_indent):
+            # Skip empty lines
+            if self.current_token.type == NEWLINE:
+                self.eat(NEWLINE)
                 continue
-            nodes.append(self.statement())
-            # print(nodes)
+
+            cmp = self.compound_stmt()
+            sim = self.simple_stmts()
+
+            if cmp:
+                nodes.append(cmp)
+
+            if sim:
+                nodes.append(sim)
+
         return StatementListNode(None, nodes)
 
-    def program(self):
-        node = self.statement_list()
-        self.eat(EOF)
-        return node
-
     def parse(self):
-        return self.program()
+        return self.statements()

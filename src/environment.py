@@ -1,5 +1,11 @@
 from typing import Any, Dict, Optional
 
+from src.ast import FunctionNode
+
+
+class NameErrorException(Exception):
+    pass
+
 
 class Environment:
     parent: "Environment" = None
@@ -8,11 +14,14 @@ class Environment:
     def __init__(self, parent: Optional["Environment"] = None) -> None:
         if parent is not None:
             self.parent = parent
-        self.values = {}
+        self.values = {
+            "print": FunctionNode(None, "print", ["text"], []),
+            "input": FunctionNode(None, "input", ["text"], []),
+        }
 
     def declare(self, key: str, value: Any = None) -> None:
         if key in self.values:
-            raise NameError(f"Variable already declared: {key}")
+            raise NameErrorException(f"Variable already declared: {key}")
         self.values[key] = value
 
     def set(self, key: str, value: Any) -> None:
@@ -21,7 +30,7 @@ class Environment:
         elif self.parent is not None:
             self.parent.set(key, value)
 
-        raise NameError(f"Undeclared variable: {key}")
+        raise NameErrorException(f"Undeclared variable: {key}")
 
     def get(self, key: str) -> Any:
         if key in self.values:
@@ -30,4 +39,4 @@ class Environment:
         if self.parent is not None:
             return self.parent.get(key)
 
-        raise NameError(f"Undeclared variable: {key}")
+        raise NameErrorException(f"Undeclared variable: {key}")

@@ -37,7 +37,6 @@ class Lexer:
     def skip_comment(self):
         while self.current_char is not None and self.current_char != "\n":
             self.advance()
-        self.advance()
 
     def number(self):
         """Return a (multidigit) integer of float consumed from the input."""
@@ -88,13 +87,9 @@ class Lexer:
                     self.advance()
                     self.column = 0
                     self.line += 1
-                    return Token(EOL, None, self.line, self.column)
+                    return Token(NEWLINE, None, self.line, self.column)
                 else:
                     self.skip_whitespace()
-                continue
-
-            if self.current_char == "/" and self.peek() == "/":
-                self.skip_comment()
                 continue
 
             if self.current_char.isdigit():
@@ -103,17 +98,12 @@ class Lexer:
             if self.current_char.isalpha():
                 return self.id()
 
+            if self.current_char == '"':
+                return self.string()
+
             if self.current_char == "+":
                 self.advance()
                 return Token(PLUS, "+", self.line, self.column)
-
-            if self.current_char == "-" and self.peek() == ">":
-                self.advance(2)
-                return Token(ARROW, "->", self.line, self.column)
-
-            if self.current_char == "-":
-                self.advance()
-                return Token(MINUS, "-", self.line, self.column)
 
             if self.current_char == "*":
                 self.advance()
@@ -125,7 +115,11 @@ class Lexer:
 
             if self.current_char == "/":
                 self.advance()
-                return Token(DIV, "/", self.line, self.column)
+                if self.current_char == "/":
+                    self.skip_comment()
+                    continue
+                else:
+                    return Token(DIV, "/", self.line, self.column)
 
             if self.current_char == "(":
                 self.advance()
@@ -135,28 +129,32 @@ class Lexer:
                 self.advance()
                 return Token(RPAREN, ")", self.line, self.column)
 
-            if self.current_char == ">" and self.peek() == "=":
-                self.advance(2)
-                return Token(SUPEQUAL, ">=", self.line, self.column)
-
-            if self.current_char == "<" and self.peek() == "=":
-                self.advance(2)
-                return Token(INFEQUAL, "<=", self.line, self.column)
+            if self.current_char == "-":
+                self.advance()
+                if self.current_char == ">":
+                    self.advance()
+                    return Token(ARROW, "->", self.line, self.column)
+                return Token(MINUS, "-", self.line, self.column)
 
             if self.current_char == ">":
                 self.advance()
+                if self.current_char == "=":
+                    self.advance()
+                    return Token(SUPEQUAL, ">=", self.line, self.column)
                 return Token(SUP, ">", self.line, self.column)
 
             if self.current_char == "<":
                 self.advance()
+                if self.current_char == "=":
+                    self.advance()
+                    return Token(INFEQUAL, "<=", self.line, self.column)
                 return Token(INF, "<", self.line, self.column)
-
-            if self.current_char == "=" and self.peek() == "=":
-                self.advance(2)
-                return Token(EQUAL, "==", self.line, self.column)
 
             if self.current_char == "=":
                 self.advance()
+                if self.current_char == "=":
+                    self.advance()
+                    return Token(EQUAL, "==", self.line, self.column)
                 return Token(ASSIGN, "=", self.line, self.column)
 
             if self.current_char == ":":
@@ -170,9 +168,6 @@ class Lexer:
             if self.current_char == "|":
                 self.advance()
                 return Token(PIPE, "|", self.line, self.column)
-
-            if self.current_char == '"':
-                return self.string()
 
             self.error(self.current_char)
 

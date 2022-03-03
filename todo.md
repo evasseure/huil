@@ -1,25 +1,41 @@
 # Todo
 
-[ ] AST visualizer
+## Error handling
+
+[ ] http://craftinginterpreters.com/evaluating-expressions.html#runtime-errors
+[ ] http://craftinginterpreters.com/parsing-expressions.html#panic-mode-error-recovery
+[ ] Simple stack trace
 [ ] self.eat(TOKEN, "error string for better communication")
-[ ] 1 <= x < 6, chained condition
-[ ] 1_050_083: underscore for numbers ?
-[ ] Separation between symbols and values
 [ ] Show full text line of error
-[ ] for loop / map ?
-[ ] while ?
-[ ] Helper function to build block statement lists (too much duplicated code)
+[ ] http://craftinginterpreters.com/functions.html#checking-arity
+
+## Types
+
+[ ] List
+[ ] Dict
+
+## Built-ins
+
 [ ] to_int()
 [ ] to_float()
 [ ] to_string()
-[ ] List
-[ ] Dict
-[ ] FAIL-scope
-[ ] Simple stack trace
+
+## General
+
+[ ] Proper return codes
+[ ] AST visualizer
+[ ] 1 <= x < 6, chained condition
+[ ] 1_050_083: underscore for numbers ?
+[ ] Separation between symbols and values
+[ ] for loop / map ?
+[ ] while ?
+[ ] Helper function to build block statement lists (too much duplicated code)
 [ ] Multi line REPL (rich repl?)
-[ ] http://craftinginterpreters.com/evaluating-expressions.html#runtime-errors
-[ ] http://craftinginterpreters.com/parsing-expressions.html#panic-mode-error-recovery
 [ ] bool value of ""
+
+## Done
+
+[X] FAIL-scope
 [X] boolean
 [X] if/then/else
 [X] empty var declaration

@@ -1,8 +1,9 @@
-let a = 5
-print(a)
-
-def test(a):
-    print(a)
-
-test(2)
-print(a)
+let a = 1 // EOL comment
+print(a + 9)
+// Commentaire  // aaa
+let b = 4
+//
+// Mega
+// comm
+print(a + b)
+// EOF comment
