@@ -1,36 +1,79 @@
-variable        : ID
+statements: statement+
 
-match           : MATCH factor COLON EOL (PIPE (factor | MUL) ARROW expr EOL)?
+statement:
+    | compound_stmt
+    | simple_stmts 
 
-assignment      : variable ASSIGN expr
+simple_stmts: simple_stmt NEWLINE
 
-if_control_flow : IF expr COLON EOL (expr EOL)* (ELIF (expr EOL)*)* (ELSE (expr EOL)*)?
+simple_stmt:
+    | declaration
+    | assignment
+    | expression
 
-factor          : (PLUS | MINUS factor)
-                    | INTEGER
-                    | FLOAT
-                    | BOOLEAN
-                    | QUOTE STRING QUOTE
-                    | LPAREN expr RPAREN
-                    | match
-                    | variable LPAREN (expr (COMMA | expr)*)? RPAREN
-                    | assignment
-                    | variable
+compound_stmt:
+    | function_def
+    | if_stmt
+    | match_stmt
 
-term            : factor ((MUL | DIV | MOD) factor)*
+declaration: 'let' ID ['=' expression]
 
-expr            : term ((PLUS | MINUS | AND | OR | SUPEQUAL | INFEQUAL | SUP | INF | EQUAL) term)*
+assignment: ID '=' expression
 
-function        : DEF variable LPAREN (variable (COMMA | variable)*)? RPAREN COLON EOL statement_list
+function_def: 'fn' ID '(' [ID (',' | ID)*] ')' ':' block
 
-declaration     : LET variable (ASSIGN expr)
+if_stmt:
+    | 'if' expression ':' block elif_stmt
+    | 'if' expression ':' block [else_stmt]
 
-statement       : declaration
-                    | assignment
-                    | function
-                    | if_control_flow
-                    | expr
+elif_stmt:
+    | 'elif' expression ':' block elif_stmt
+    | 'elif' expression ':' block [else_stmt]
 
-statement_list  : (statement EOL)*
+else_stmt: 'else' ':' block
 
-program         : statement_list EOF
+match_stmt: 'match' expression ':' NEWLINE INDENT (match)+ DEDENT
+
+match: '|' (expression | '*') '->' expression
+
+block: NEWLINE INDENT statements DEDENT 
+
+expression:
+    | term
+    | expression '+' term
+    | expression '-' term
+    | expression '>' term
+    | expression '>=' term
+    | expression '<' term
+    | expression '<=' term
+    | expression '==' term
+    | '!' term // NOT IMPLEMENTED YET
+    | expression 'or' term
+    | expression 'and' term
+
+term:
+    | factor
+    | term '*' factor 
+    | term '/' factor 
+    | term '//' factor 
+    | term '%' factor 
+
+factor:
+    | primary
+    | '+' factor 
+    | '-' factor 
+
+primary:
+    | atom
+    | ID '(' [expression (',' | expression)*] ')'
+
+atom:
+    | ID
+    | INTEGER
+    | FLOAT
+    | STRING
+    | 'true'
+    | 'false'
+    | None // NOT IMPLEMENTED YET
+    | '(' expression ')'
+
