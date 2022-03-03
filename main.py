@@ -1,52 +1,64 @@
 from rich import print
 import sys
+from src.environment import NameErrorException
 
-from src.interpreter import Interpreter
+from src.interpreter import Interpreter, RuntimeException
 from src.lexer import Lexer
 from src.parser import Parser
-import readline  # Necessary to have a nice python input()
+import os
+import readline
+
+histfile_size = 1000
+histfile = "./.history"
 
 
 def run(code):
-    if code == "print_scope()":
-        print()
-
     lexer = Lexer(code)
     parser = Parser(lexer)
-    interpreter = Interpreter()
     # print(parser.parse())
-    # return "Interpretor disabled"
-    return interpreter.interpret(parser)
+    interpreter = Interpreter()
+    interpreter.interpret(parser)
 
 
 def test_file(filename):
     with open(f"./examples/{filename}") as f:
-        print("\nReturned value:", run(f.read()))
+        run(f.read())
 
 
 def repl():
-    shared_scope = {}
+    # Initializes the REPL history
+    if not os.path.exists(histfile):
+        with open(histfile, "w") as _:
+            pass
+    readline.read_history_file(histfile)
+    readline.set_history_length(histfile_size)
+
+    interpreter = Interpreter()
     while True:
         try:
-            code = input("hufl> ")
+            code = input("hul> ")
             if code == "print_scope()":
-                print(shared_scope)
+                print(interpreter.env.values)
                 continue
             if not code:
                 continue
             lexer = Lexer(code)
             parser = Parser(lexer)
-            interpreter = Interpreter(shared_scope)
             result = interpreter.interpret(parser)
             print(result)
-            shared_scope = interpreter.global_scope
+
+            readline.write_history_file(histfile)
         except EOFError:
             break
         except KeyboardInterrupt:
             break
+        except RuntimeException as e:
+            print(e)
+        except NameErrorException as e:
+            print(e)
         except Exception as e:
             # print(e)
-            raise e
+            raise (e)
 
 
 if __name__ == "__main__":

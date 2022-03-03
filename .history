@@ -1,0 +1,16 @@
+1
+2
+3
+let a = 10
+let b = 12
+let a = 10
+1 + "toto"
+1
+"toto"
+1 + "toto"
+true and true
+1 and true
++"a"
+"b"+"a"
++"a"
+b
