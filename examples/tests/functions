@@ -1,9 +1,9 @@
 fn add(a, b):
-    a + b
+    return a + b
 
 fn mult(c, d):
     let res = c * d
-    res
+    return res
 
 let var1 = 2
 let var2 = 4

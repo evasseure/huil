@@ -10,10 +10,12 @@ simple_stmt:
     | declaration
     | assignment
     | expression
+    | return_stmt
 
 compound_stmt:
     | function_def
     | if_stmt
+    | while_stmt
     | match_stmt
 
 declaration: 'let' ID ['=' expression]
@@ -32,11 +34,15 @@ elif_stmt:
 
 else_stmt: 'else' ':' block
 
+while_stmt: 'while' expression: block
+
 match_stmt: 'match' expression ':' NEWLINE INDENT (match)+ DEDENT
 
 match: '|' (expression | '*') '->' expression
 
 block: NEWLINE INDENT statements DEDENT 
+
+return_stmt: `return` expression
 
 expression:
     | term

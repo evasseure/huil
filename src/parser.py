@@ -77,6 +77,9 @@ class Parser:
         elif token.type == MINUS:
             self.eat(MINUS)
             return UnaryOpNode(token, self.factor())
+        elif token.type == NOT:
+            self.eat(NOT)
+            return UnaryOpNode(token, self.factor())
         return self.primary()
 
     def term(self):
@@ -99,7 +102,7 @@ class Parser:
     def expression(self):
         node = self.term()
 
-        while self.current_token.type in (PLUS, MINUS, AND, OR, SUPEQUAL, INFEQUAL, SUP, INF, EQUAL):
+        while self.current_token.type in (PLUS, MINUS, AND, OR, SUPEQUAL, INFEQUAL, SUP, INF, EQUAL, NOTEQUAL):
             token = self.current_token
             if token.type == PLUS:
                 self.eat(PLUS)
@@ -115,6 +118,8 @@ class Parser:
                 self.eat(INF)
             elif token.type == EQUAL:
                 self.eat(EQUAL)
+            elif token.type == NOTEQUAL:
+                self.eat(NOTEQUAL)
             elif token.type == AND:
                 self.eat(AND)
             elif token.type == OR:
@@ -195,11 +200,32 @@ class Parser:
             else_statements,
         )
 
+    def while_stmt(self):
+        token = self.current_token
+        self.eat(WHILE)
+        condition = self.expression()
+        self.eat(COLON)
+        self.eat(NEWLINE)
+        statements = self.statements(block=True)
+
+        return WhileNode(
+            token,
+            condition,
+            statements,
+        )
+
+    def return_stmt(self):
+        token = self.current_token
+        self.eat(RETURN)
+        return ReturnNode(token, self.expression())
+
     def simple_stmt(self):
         if self.current_token.type == LET:
             return self.declaration()
         if self.current_token.type == ID:
             return self.assignment()
+        if self.current_token.type == RETURN:
+            return self.return_stmt()
         return self.expression()
 
     def compound_stmt(self):
@@ -207,6 +233,8 @@ class Parser:
             return self.if_stmt()
         if self.current_token.type == FN:
             return self.function_def()
+        if self.current_token.type == WHILE:
+            return self.while_stmt()
 
     def simple_stmts(self):
         stmt = self.simple_stmt()

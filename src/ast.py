@@ -66,9 +66,20 @@ class IfThenElseNode(ASTNode):
 
 
 @dataclass
+class WhileNode(ASTNode):
+    condition: ASTNode
+    statements: "StatementListNode"
+
+
+@dataclass
 class FunctionCallNode(ASTNode):
     id: str
     arguments: List[Any]
+
+
+@dataclass
+class ReturnNode(ASTNode):
+    value: Any
 
 
 @dataclass

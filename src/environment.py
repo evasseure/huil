@@ -29,8 +29,8 @@ class Environment:
             self.values[key] = value
         elif self.parent is not None:
             self.parent.set(key, value)
-
-        raise NameErrorException(f"Undeclared variable: {key}")
+        else:
+            raise NameErrorException(f"Undeclared variable: {key}")
 
     def get(self, key: str) -> Any:
         if key in self.values:

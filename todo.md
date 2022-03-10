@@ -19,6 +19,7 @@
 [ ] to_int()
 [ ] to_float()
 [ ] to_string()
+[ ] input()
 
 ## General
 
@@ -35,6 +36,7 @@
 
 ## Done
 
+[X] Return statement
 [X] FAIL-scope
 [X] boolean
 [X] if/then/else

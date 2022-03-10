@@ -12,4 +12,6 @@ RESERVED_KEYWORDS = {
     "if": Token("IF", "IF", 0, 0),
     "elif": Token("ELIF", "ELIF", 0, 0),
     "else": Token("ELSE", "ELSE", 0, 0),
+    "return": Token("RETURN", "RETURN", 0, 0),
+    "while": Token("WHILE", "WHILE", 0, 0),
 }

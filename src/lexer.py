@@ -157,6 +157,13 @@ class Lexer:
                     return Token(EQUAL, "==", self.line, self.column)
                 return Token(ASSIGN, "=", self.line, self.column)
 
+            if self.current_char == "!":
+                self.advance()
+                if self.current_char == "=":
+                    self.advance()
+                    return Token(NOTEQUAL, "!=", self.line, self.column)
+                return Token(NOT, "!", self.line, self.column)
+
             if self.current_char == ":":
                 self.advance()
                 return Token(COLON, ":", self.line, self.column)
@@ -169,6 +176,6 @@ class Lexer:
                 self.advance()
                 return Token(PIPE, "|", self.line, self.column)
 
-            self.error(self.current_char)
+            self.error()
 
         return Token(EOF, None, self.line, self.column)

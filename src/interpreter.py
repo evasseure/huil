@@ -62,11 +62,20 @@ class Interpreter(NodeVisitor):
             return left > right
         elif node.token.type == EQUAL:
             return left == right
+        elif node.token.type == NOTEQUAL:
+            return left != right
         elif node.token.type == INFEQUAL:
             return left <= right
 
     def visit_UnaryOpNode(self, node):
         value = self.visit(node.value)
+
+        if type(value) != bool:
+            raise TypeError(f"Can't do {node.token.value} {value}")
+
+        if node.token.type == NOT:
+            return not value
+
         if type(value) != int and type(value) != float:
             raise TypeError(f"Can't do {node.token.value} {value}")
 
@@ -140,11 +149,14 @@ class Interpreter(NodeVisitor):
         for i in range(len(node.conditions)):
             res = self.visit(node.conditions[i])
             if res:
-                print(node.truthy_statements[i])
-                return self.visit(node.truthy_statements[i])
+                self.visit(node.truthy_statements[i])
 
         if node.else_statements:
-            return self.visit(node.else_statements)
+            self.visit(node.else_statements)
+
+    def visit_WhileNode(self, node):
+        while self.visit(node.condition):
+            self.visit(node.statements)
 
     def visit_DeclarationNode(self, node):
         self.env.declare(node.id, self.visit(node.value))
@@ -155,15 +167,18 @@ class Interpreter(NodeVisitor):
     def visit_VariableNode(self, node):
         return self.env.get(node.id)
 
+    def visit_ReturnNode(self, node):
+        return self.visit(node.value)
+
     def visit_FunctionNode(self, node):
         self.env.declare(node.id, node)
 
     def visit_StatementListNode(self, node):
-        last_value = None
         for statement in node.statements:
-            last_value = self.visit(statement)
-        return last_value
+            if statement.token.type == RETURN:
+                return self.visit(statement)
+            self.visit(statement)
 
     def interpret(self, parser):
         tree = parser.parse()
-        return self.visit(tree)
+        self.visit(tree)
