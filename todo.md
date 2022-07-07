@@ -29,13 +29,13 @@
 [ ] 1_050_083: underscore for numbers ?
 [ ] Separation between symbols and values
 [ ] for loop / map ?
-[ ] while ?
 [ ] Helper function to build block statement lists (too much duplicated code)
 [ ] Multi line REPL (rich repl?)
 [ ] bool value of ""
 
 ## Done
 
+[X] while
 [X] Return statement
 [X] FAIL-scope
 [X] boolean
