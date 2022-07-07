@@ -1,4 +1,8 @@
-let x = 0
-while x != 5:
-    print(x)
-    x = x + 1
+let a = 5
+print(a)
+
+fn test(a):
+    print(a)
+
+test(2)
+print(a)

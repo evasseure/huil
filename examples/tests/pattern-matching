@@ -13,4 +13,3 @@ let letter = match num:
     | 9 -> "nine"
     | * -> "I don't know sorry"
 
-letter

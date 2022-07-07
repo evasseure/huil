@@ -21,7 +21,7 @@ def run(code):
 
 
 def test_file(filename):
-    with open(f"./examples/{filename}") as f:
+    with open(filename) as f:
         run(f.read())
 
 
